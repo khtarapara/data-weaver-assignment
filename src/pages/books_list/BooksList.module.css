@@ -1,0 +1,15 @@
+.booksList {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+  align-items: center;
+  margin: 20px 10px;
+}
+
+.search {
+  width: 200px;
+}
+
+.table {
+  width: 100%;
+}
