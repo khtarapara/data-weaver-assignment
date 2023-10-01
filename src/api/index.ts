@@ -20,3 +20,8 @@ export const updateBook = (book: Book) => {
   const { id, ...record } = book;
   return axiosInstance.put(routes.updateBook(id), record);
 };
+
+export const addBook = (book: Book) => {
+  const { id: _, ...record } = book;
+  return axiosInstance.post(routes.books, record);
+};

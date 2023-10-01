@@ -20,3 +20,23 @@
   justify-content: center;
   column-gap: 10px;
 }
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.formContainer {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+}
+
+.formContainer label {
+  font-weight: bold;
+}
+
+.number {
+  width: 100%;
+}

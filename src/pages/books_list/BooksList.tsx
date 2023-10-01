@@ -8,14 +8,16 @@ import React, {
 import { Table as AntdTable, Button, InputNumber } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { Input } from "antd";
-import styles from "./BooksList.module.css";
 import type { SearchProps } from "antd/es/input";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchBooks } from "../../store/bookThunks";
+import { fetchBooks as fetchBooksThunk } from "../../store/bookThunks";
 import { Book } from "../../models/book";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { updateBook } from "../../api";
 import { CheckOutlined, CloseOutlined, EditOutlined } from "@ant-design/icons";
+import AddBookModal from "./AddBookModal";
+
+import styles from "./BooksList.module.css";
 
 const Table = React.memo(AntdTable<Book>);
 
@@ -35,6 +37,9 @@ interface TableParams {
   filters?: Record<string, FilterValue | null>;
 }
 
+const defaultSortBy = "id";
+const defaultSortOrder = "DESC";
+
 function BooksList() {
   const { books, total, loading, error } = useAppSelector(
     (state) => state.books
@@ -49,14 +54,18 @@ function BooksList() {
       current: 1,
       pageSize: 10,
     },
+    sortBy: "id",
+    sortOrder: "DESC",
   });
 
   const handleTableChange = useCallback(
     (
       pagination: TablePaginationConfig,
       filters: Record<string, FilterValue | null>,
-      sorter: SorterResult<Book> | SorterResult<Book>[]
+      sorter: SorterResult<Book> | SorterResult<Book>[],
+      extra: any
     ) => {
+      console.log(pagination, filters, sorter, extra);
       setTableParams({
         pagination,
         filters,
@@ -67,6 +76,24 @@ function BooksList() {
     },
     []
   );
+
+  const fetchBooks = useCallback(() => {
+    dispatch(
+      fetchBooksThunk({
+        page: tableParams.pagination?.current || 1,
+        pageSize: tableParams.pagination?.pageSize || 10,
+        title: filter,
+        sortBy: tableParams.sortBy || defaultSortBy,
+        DIR: tableParams.sortOrder || defaultSortOrder,
+      })
+    );
+  }, [
+    dispatch,
+    filter,
+    tableParams.pagination,
+    tableParams.sortBy,
+    tableParams.sortOrder,
+  ]);
 
   const handleEdit = useCallback((record: Book) => {
     setEditableRowId(record.id);
@@ -80,30 +107,16 @@ function BooksList() {
       }
       setUpdatePending(true);
       await updateBook(form);
-      dispatch(
-        fetchBooks({
-          page: tableParams.pagination?.current || 1,
-          pageSize: tableParams.pagination?.pageSize || 10,
-          title: filter,
-          sortBy: tableParams.sortBy || "",
-          DIR: tableParams.sortOrder || "ASC",
-        })
-      );
+      fetchBooks();
     } catch (err) {
       console.log(err);
+      // TODO: show toast.
     } finally {
       setUpdatePending(false);
       setEditableRowId(0);
       setForm(null);
     }
-  }, [
-    dispatch,
-    filter,
-    form,
-    tableParams.pagination,
-    tableParams.sortBy,
-    tableParams.sortOrder,
-  ]);
+  }, [fetchBooks, form]);
 
   const handleCancel = useCallback(() => {
     setEditableRowId(0);
@@ -241,12 +254,14 @@ function BooksList() {
               {editable ? (
                 <>
                   <Button
+                    className={styles.actionButton}
                     shape="circle"
                     onClick={handleSave}
                     icon={<CheckOutlined />}
                     disabled={updatePending}
                   />
                   <Button
+                    className={styles.actionButton}
                     shape="circle"
                     onClick={handleCancel}
                     icon={<CloseOutlined />}
@@ -255,6 +270,7 @@ function BooksList() {
                 </>
               ) : (
                 <Button
+                  className={styles.actionButton}
                   shape="circle"
                   icon={<EditOutlined />}
                   onClick={() => handleEdit(record)}
@@ -279,25 +295,12 @@ function BooksList() {
   );
 
   useEffect(() => {
-    dispatch(
-      fetchBooks({
-        page: tableParams.pagination?.current || 1,
-        pageSize: tableParams.pagination?.pageSize || 10,
-        title: filter,
-        sortBy: tableParams.sortBy || "",
-        DIR: tableParams.sortOrder || "ASC",
-      })
-    );
-  }, [
-    dispatch,
-    filter,
-    tableParams.pagination,
-    tableParams.sortBy,
-    tableParams.sortOrder,
-  ]);
+    fetchBooks();
+  }, [fetchBooks]);
 
   return (
     <div className={styles.booksList}>
+      <AddBookModal onAdd={fetchBooks} />
       <Input.Search
         className={styles.search}
         onSearch={handleSearch}

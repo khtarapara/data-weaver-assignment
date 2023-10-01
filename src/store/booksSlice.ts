@@ -16,11 +16,18 @@ export const booksSlice = createSlice<BookStore, SliceCaseReducers<BookStore>>({
       if (!action.payload) {
         return;
       }
-      const { data, total } = action.payload;
+      const { data, total, error } = action.payload;
       state.books = data;
       state.total = total;
       state.loading = false;
-      state.error = "";
+      state.error = error;
+    });
+
+    builder.addCase(fetchBooks.rejected, (state, action) => {
+      state.books = [];
+      state.total = 0;
+      state.loading = false;
+      state.error = "Failed to fetch books.";
     });
   },
 });
