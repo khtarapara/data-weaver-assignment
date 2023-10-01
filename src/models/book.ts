@@ -24,5 +24,4 @@ export interface BookStore {
   books: Book[];
   total: number;
   loading: boolean;
-  error: string;
 }

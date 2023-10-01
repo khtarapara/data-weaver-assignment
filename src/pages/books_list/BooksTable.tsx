@@ -11,6 +11,7 @@ import { CheckOutlined, CloseOutlined, EditOutlined } from "@ant-design/icons";
 import { FilterValue, SorterResult } from "antd/es/table/interface";
 import { TableParams } from "./types";
 import { useAppSelector } from "../../store/hooks";
+import { toast } from "react-toastify";
 
 const Table = React.memo(AntdTable<Book>);
 
@@ -52,7 +53,7 @@ export default function BooksTable({
       fetchBooks();
     } catch (err) {
       console.log(err);
-      // TODO: show toast.
+      toast.error("Failed to update.");
     } finally {
       setUpdatePending(false);
       setEditableRowId(0);

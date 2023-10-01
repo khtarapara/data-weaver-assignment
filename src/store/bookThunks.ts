@@ -7,6 +7,6 @@ export const fetchBooks = createAsyncThunk(
     const res = await getBooks(params);
     const { data, pagination } = res.data;
 
-    return { data, total: pagination.totalElements, error: "" };
+    return { data, total: pagination.totalElements };
   }
 );
