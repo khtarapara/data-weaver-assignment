@@ -45,4 +45,3 @@
 
    Open your browser and visit `http://localhost:3000` to use the application locally.
 
-Now you have the Book Search and Management Application running on your local machine, ready for development and testing.
