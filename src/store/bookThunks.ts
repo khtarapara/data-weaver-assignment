@@ -3,7 +3,7 @@ import { getBooks, type getBooksParams } from "../api";
 
 export const fetchBooks = createAsyncThunk(
   "fetch/books",
-  async (params: getBooksParams, _) => {
+  async (params: getBooksParams) => {
     const res = await getBooks(params);
     const { data, pagination } = res.data;
 
