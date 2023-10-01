@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Table as AntdTable } from "antd";
 import type { TablePaginationConfig } from "antd/es/table";
-import { Book, BooksAPI } from "../../models/book";
 import { Input } from "antd";
 import styles from "./BooksList.module.css";
 import type { SearchProps } from "antd/es/input";
+import { usePagination } from "../../hooks/usePagination";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { fetchBooks } from "../../store/bookThunks";
 
 const Table = React.memo(AntdTable);
 
@@ -17,28 +19,27 @@ type onSearchEvent =
   | React.MouseEvent<HTMLElement>
   | React.KeyboardEvent<HTMLInputElement>;
 
-interface TablePagination {
-  currentPage: number;
-  pageSize: number;
-  total?: number;
-}
-
 function BooksList() {
-  const [data, setData] = useState<Book[]>();
-  const [loading, setLoading] = useState<boolean>(false);
+  const { books, total, loading, error } = useAppSelector(
+    (state) => state.books
+  );
+  const dispatch = useAppDispatch();
   const [filter, setFilter] = useState<string>("");
-  const [pagination, setPagination] = useState<TablePagination>({
-    currentPage: 1,
-    pageSize: 10,
-  });
+  const {
+    pagination,
+    handleChange: handlePaginationChange,
+    handleTotalChange,
+  } = usePagination();
 
-  const handleTableChange = useCallback((pagination: TablePaginationConfig) => {
-    setPagination((p) => ({
-      ...p,
-      currentPage: pagination.current || 1,
-      pageSize: pagination.pageSize || 10,
-    }));
-  }, []);
+  const handleTableChange = useCallback(
+    (pagination: TablePaginationConfig) => {
+      handlePaginationChange(
+        pagination.current || 1,
+        pagination.pageSize || 10
+      );
+    },
+    [handlePaginationChange]
+  );
 
   const columns = useMemo(
     () => [
@@ -84,31 +85,24 @@ function BooksList() {
   );
 
   useEffect(() => {
-    const fetchData = async (filter: string, pagination: TablePagination) => {
-      try {
-        setLoading(true);
-        const res = await fetch(
-          `http://68.178.162.203:8080/application-test-v1.1/books?page=${pagination.currentPage}&pageSize=${pagination.pageSize}&title=${filter}`
-        );
-        const resData: BooksAPI = await res.json();
+    dispatch(
+      fetchBooks({
+        page: pagination.currentPage,
+        pageSize: pagination.pageSize,
+        title: filter,
+      })
+    );
+  }, [
+    dispatch,
+    filter,
+    handleTotalChange,
+    pagination.currentPage,
+    pagination.pageSize,
+  ]);
 
-        setData(resData.data);
-        setPagination({
-          ...pagination,
-          total: resData.pagination.totalElements,
-        });
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData(filter, {
-      currentPage: pagination.currentPage,
-      pageSize: pagination.pageSize,
-    });
-  }, [filter, pagination.currentPage, pagination.pageSize]);
+  useEffect(() => {
+    handleTotalChange(total);
+  }, [total, handleTotalChange]);
 
   return (
     <div className={styles.booksList}>
@@ -116,13 +110,15 @@ function BooksList() {
         className={styles.search}
         onSearch={handleSearch}
         allowClear
+        size="large"
       />
+      {error}
       <Table
         bordered
         className={styles.table}
         columns={columns}
         rowKey={(record) => record.id}
-        dataSource={data}
+        dataSource={books}
         pagination={{
           ...pagination,
           showTotal: (total, range) =>
