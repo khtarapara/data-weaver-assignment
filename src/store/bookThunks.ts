@@ -1,11 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getBooks, type getBooksProps } from "../api";
+import { getBooks, type getBooksParams } from "../api";
 
 export const fetchBooks = createAsyncThunk(
   "fetch/books",
-  async ({ page, pageSize, title }: getBooksProps, thunkApi) => {
+  async (params: getBooksParams, thunkApi) => {
     try {
-      const res = await getBooks({ page, pageSize, title });
+      const res = await getBooks(params);
       const { data, pagination } = res.data;
 
       return { data, total: pagination.totalElements };

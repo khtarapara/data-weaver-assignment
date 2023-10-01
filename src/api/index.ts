@@ -1,19 +1,22 @@
 import { axiosInstance } from "./axiosInstance";
 import { routes } from "./routes";
-import type { BooksAPI } from "../models/book";
+import type { Book, BooksAPI } from "../models/book";
 
-export type getBooksProps = {
+export type getBooksParams = {
   page: number;
   pageSize: number;
   title: string;
+  sortBy: string;
+  DIR: "DESC" | "ASC";
 };
 
-export const getBooks = ({ page, pageSize, title }: getBooksProps) => {
+export const getBooks = (params: getBooksParams) => {
   return axiosInstance.get<BooksAPI>(routes.books, {
-    params: {
-      page,
-      pageSize,
-      title,
-    },
+    params,
   });
+};
+
+export const updateBook = (book: Book) => {
+  const { id, ...record } = book;
+  return axiosInstance.put(routes.updateBook(id), record);
 };
