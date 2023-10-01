@@ -87,6 +87,7 @@ export default function BooksTable({
         title: "Title",
         dataIndex: "title",
         sorter: true,
+        fixed: true,
         render: (value: any, record: Book) => {
           if (editableRowId === record.id) {
             return (
@@ -129,6 +130,7 @@ export default function BooksTable({
         title: "Year",
         dataIndex: "year",
         sorter: true,
+        responsive: ["lg", "md", "sm"],
         render: (value: any, record: Book) => {
           if (editableRowId === record.id) {
             return (
@@ -150,6 +152,7 @@ export default function BooksTable({
         title: "Language",
         dataIndex: "language",
         sorter: true,
+        responsive: ["lg", "md", "sm"],
         render: (value: any, record: Book) => {
           if (editableRowId === record.id) {
             return (
@@ -170,6 +173,7 @@ export default function BooksTable({
         title: "Country",
         dataIndex: "country",
         sorter: true,
+        responsive: ["lg", "md"],
         render: (value: any, record: Book) => {
           if (editableRowId === record.id) {
             return (
@@ -190,6 +194,7 @@ export default function BooksTable({
         title: "Pages",
         dataIndex: "pages",
         sorter: true,
+        responsive: ["lg", "md"],
         render: (value: any, record: Book) => {
           if (editableRowId === record.id) {
             return (
@@ -210,6 +215,7 @@ export default function BooksTable({
         title: "Link",
         dataIndex: "link",
         sorter: true,
+        responsive: ["lg", "md"],
         render: (value: any, record: Book) => {
           if (editableRowId === record.id) {
             <Input
@@ -279,6 +285,7 @@ export default function BooksTable({
   return (
     <Table
       bordered
+      sticky
       className={styles.table}
       columns={columns}
       rowKey={(record) => record.id}
